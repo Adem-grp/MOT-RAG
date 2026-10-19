@@ -1,0 +1,7 @@
+pymupdf
+sentence-transformers
+chromadb
+ollama
+requests
+langgraph
+pydantic
