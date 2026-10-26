@@ -1,18 +1,19 @@
 """STEP 1b: INGESTION. Turn PDFs into a searchable vector database.
 
 Run this once (and again whenever you add papers or change chunk settings):
-    python ingest.py
+    python -m backend.RAG_Structure.Ingest
 
 What happens, in order:
     PDF -> text per page -> chunks -> embeddings (vectors) -> stored in Chroma with metadata
 """
 from pathlib import Path
+import argparse
 
 import chromadb
 import fitz  # pymupdf
 from sentence_transformers import SentenceTransformer
 
-from config import COLLECTION, DB_DIR, EMBED_DEVICE, EMBED_MODEL, PDF_DIR
+from backend.RAG_Structure.Config import COLLECTION, DB_DIR, EMBED_DEVICE, EMBED_MODEL, PDF_DIR
 
 # Chunking is the most underrated part of RAG. Too small: a chunk lacks the context to be useful.
 # Too big: the chunk contains lots of unrelated text, so its vector is "blurry" and the prompt fills up.
@@ -35,7 +36,14 @@ def chunk_text(text: str, size: int, overlap: int) -> list[str]:
 
 def load_chunks() -> tuple[list[str], list[dict], list[str]]:
     texts, metadatas, ids = [], [], []
-    for pdf_path in sorted(Path(PDF_DIR).glob("*.pdf")):
+    pdf_paths = sorted(Path(PDF_DIR).glob("*.pdf"))
+    if not pdf_paths:
+        raise FileNotFoundError(
+            f"No PDF files found in {PDF_DIR}. "
+            "Run `python -m backend.RAG_Structure.download_papers` first."
+        )
+
+    for pdf_path in pdf_paths:
         doc = fitz.open(pdf_path)
         for page_num, page in enumerate(doc, start=1):
             for i, chunk in enumerate(chunk_text(page.get_text(), CHUNK_SIZE, CHUNK_OVERLAP)):
@@ -47,9 +55,26 @@ def load_chunks() -> tuple[list[str], list[dict], list[str]]:
     return texts, metadatas, ids
 
 
-def main() -> None:
+def database_is_ready() -> bool:
+    client = chromadb.PersistentClient(path=DB_DIR)
+    try:
+        return client.get_collection(COLLECTION).count() > 0
+    except Exception:
+        return False
+
+
+def main(force: bool = False) -> None:
+    if not force and database_is_ready():
+        print(f"Chroma collection '{COLLECTION}' already exists in {DB_DIR}; nothing to ingest")
+        print("Use `python -m backend.RAG_Structure.Ingest --force` to rebuild it.")
+        return
+
     texts, metadatas, ids = load_chunks()
     print(f"{len(texts)} chunks total")
+    if not texts:
+        raise RuntimeError(
+            f"No searchable text was extracted from PDFs in {PDF_DIR}."
+        )
 
     # Embedding: text -> list of 384 numbers. Similar meaning = nearby vectors.
     # normalize_embeddings=True makes cosine similarity work properly.
@@ -75,4 +100,10 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="Build the MOT paper vector database.")
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Rebuild the database even when a populated collection already exists.",
+    )
+    main(force=parser.parse_args().force)
