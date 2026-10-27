@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Live MOT Tracking</title>
+    <link rel="stylesheet" href="/style.css?v=3">
+  </head>
+  <body>
+    <main class="app-shell">
+      <aside class="sidebar">
+        <h1>MOT<br>Research Assistant</h1>
+        <a class="new-chat sidebar-button" href="/">Back to Chat</a>
+        <p class="sidebar-note">Run live tracking with<br>your best detector.</p>
+      </aside>
+      <section class="content">
+        <header class="header">
+          <h2>Live multi-object tracking</h2>
+          <span id="status">Stopped</span>
+        </header>
+        <div class="tracking-page">
+          <h3>Test the real-time pipeline</h3>
+          <p>Run the detector and ByteTrack pipeline directly in this page.</p>
+          <form id="tracking-controls" class="tracking-controls">
+            <button type="submit">Start tracking</button>
+            <button id="stop-tracking" type="button">Stop</button>
+            <button id="screenshot" type="button">Take Screenshot (S)</button>
+            <button id="recording" type="button">Start Recording (V)</button>
+          </form>
+          <p id="tracking-error" class="tracking-error" hidden></p>
+          <div class="stream-frame">
+            <img id="tracking-stream" src="/tracking-preview.svg" alt="Camera ready preview">
+            <p id="stream-placeholder" hidden>Start tracking to view the annotated stream.</p>
+          </div>
+          <a class="download-button" href="/api/realtime/download">Download Screenshots and Videos (ZIP)</a>
+          <p class="hint">
+            Webcam 0 is used. S takes a screenshot, V starts/stops recording,
+            and Q stops tracking. Recording is never started automatically.
+          </p>
+        </div>
+      </section>
+    </main>
+    <script src="/realtime.js?v=6"></script>
+  </body>
+</html>

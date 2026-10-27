@@ -5,3 +5,11 @@ ollama
 requests
 langgraph
 pydantic
+fastapi
+uvicorn
+# Keep these versions aligned with boxmot's supported native dependencies.
+numpy==1.26.4
+opencv-python==4.10.0.84
+torch
+ultralytics
+boxmot
