@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MOT Research Assistant</title>
+    <link rel="stylesheet" href="/style.css?v=2">
+  </head>
+  <body>
+    <!-- The sidebar mirrors the original Tkinter application's navigation. -->
+    <main class="app-shell">
+      <aside class="sidebar">
+        <h1>MOT<br>Research Assistant</h1>
+        <a class="new-chat live-tracking" href="/realtime.html">Live Tracking</a>
+        <button id="new-chat" class="new-chat">+ New Chat</button>
+        <p class="sidebar-note">Answers are grounded in<br>the indexed MOT papers.</p>
+      </aside>
+      <section class="content">
+        <!-- JavaScript updates the status while a backend request is running. -->
+        <header class="header">
+          <h2>MOT Research Chat</h2>
+          <span id="status">Ready</span>
+        </header>
+        <!-- Messages are created here dynamically by frontend/app.js. -->
+        <div id="chat" class="chat" aria-live="polite"></div>
+        <!-- Using a form makes both clicking Send and pressing Enter work. -->
+        <form id="composer" class="composer">
+          <input id="question" autocomplete="off"
+            placeholder="Ask about the multi-object tracking papers..." required>
+          <button id="send" type="submit">Send</button>
+        </form>
+        <p class="hint">Responses use only the indexed paper collection.</p>
+      </section>
+    </main>
+    <script src="/app.js?v=3"></script>
+  </body>
+</html>
